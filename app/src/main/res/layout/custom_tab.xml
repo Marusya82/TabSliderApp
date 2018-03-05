@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <View
+        android:id="@+id/sliderContainerView"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/slider_height"
+        android:layout_margin="@dimen/larger_padding"
+        android:background="@drawable/custom_container_view" />
+
+    <android.support.design.widget.TabLayout
+        android:id="@+id/slidingTabs"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/tab_layout_height"
+        app:tabGravity="fill"
+        app:tabBackground="@android:color/transparent"
+        app:tabTextColor="#FFFFFF"
+        app:tabSelectedTextColor="@color/colorTabAccent"
+        app:tabIndicatorHeight="0dp"
+        app:tabMaxWidth="0dp"
+        app:tabMode="fixed" />
+
+    <Button
+        android:id="@+id/sliderView"
+        android:layout_width="@dimen/slider_width"
+        android:layout_height="@dimen/slider_height"
+        android:layout_margin="@dimen/larger_padding"
+        android:textColor="@color/colorTabAccent"
+        android:background="@drawable/custom_slider_view" />
+
+</merge>

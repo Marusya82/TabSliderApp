@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">City guide</string>
+    <string name="title_bar">Bar</string>
+    <string name="title_bistro">Bistro</string>
+    <string name="title_cafe">Cafe</string>
+    <string name="drawer_open">Open navigation drawer</string>
+    <string name="drawer_close">Close navigation drawer</string>
+    <string name="distance_placeholder">0.4 mi</string>
+</resources>
