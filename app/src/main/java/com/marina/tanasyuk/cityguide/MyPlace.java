@@ -1,7 +1,7 @@
 package com.marina.tanasyuk.cityguide;
 
 /**
- * TODO Add specs Model representing Place object.
+ * Model representing Place object.
  */
 
 public class MyPlace {

@@ -11,4 +11,9 @@
         <item name="color">@android:color/white</item>
     </style>
 
+    <style name="MyCustomTextAppearance" parent="TextAppearance.Design.Tab">
+        <item name="textAllCaps">false</item>
+        <item name="android:textSize">@dimen/tab_text</item>
+    </style>
+
 </resources>

@@ -14,12 +14,13 @@ import butterknife.ButterKnife;
 
 /**
  * Custom Tab Layout view that renders a custom slider with following specs:
- *      TODO slider can be dragged;
+ *      slider can be dragged;
  *      it always shows the place type it sits above;
  *      on touch up the slider snaps to the nearest place type;
  *      on tap on a place type label (tab) the slider moves accordingly;
  *      text of a slider changes accordingly to the type of a places;
- *      TODO slider is animated on move.
+ *      TODO slider is animated on move
+ *      TODO handle configuration changes
  */
 
 public class CustomTabLayout extends FrameLayout {
@@ -50,6 +51,12 @@ public class CustomTabLayout extends FrameLayout {
         inflate(getContext(), R.layout.custom_tab, this);
         ButterKnife.bind(this);
 
+        setupTabLayout();
+
+        setupSliderView();
+    }
+
+    public void setupTabLayout() {
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
@@ -57,7 +64,7 @@ public class CustomTabLayout extends FrameLayout {
                 float containerX = sliderContainerView.getX();
                 int selectedPos = tab.getPosition();
                 if (selectedPos == 2) {
-                    sliderView.setX(containerX + containerWidth/3*2);
+                    sliderView.setX(containerX + containerWidth/3 * 2);
                 } else if (selectedPos == 1) {
                     sliderView.setX(containerX + containerWidth/3);
                 } else if (selectedPos == 0) {
@@ -76,78 +83,85 @@ public class CustomTabLayout extends FrameLayout {
                 // NO OP
             }
         });
-
-        setupSliderView();
     }
 
     public void setupSliderView() {
         sliderView.setText(R.string.title_bar);
-        sliderView.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                int currentPos = tabLayout.getSelectedTabPosition();
-                TabLayout.Tab tabToGo = null;
-                if (currentPos == 2) {
-                    tabToGo = tabLayout.getTabAt(0);
-                } else if (currentPos == 1) {
-                    tabToGo = tabLayout.getTabAt(currentPos + 1);
-                } else if (currentPos == 0) {
-                    tabToGo = tabLayout.getTabAt(currentPos + 1);
-                }
-                if (tabToGo != null) {
-                    tabToGo.select();
-                    sliderView.setText(tabToGo.getText());
-                }
-            }
-        });
-
-        // TODO finish onDrag
-//        sliderView.setOnTouchListener(new DragTouchListener(sliderView.getX(), sliderView.getY()));
+        sliderView.setOnTouchListener(new CustomTouchListener());
     }
 
     public void setupWithViewPager(ViewPager viewPager) {
         tabLayout.setupWithViewPager(viewPager);
     }
 
-    public class DragTouchListener implements View.OnTouchListener {
+    public class CustomTouchListener implements View.OnTouchListener {
 
-        DragTouchListener(float initialX, float initialY) {
-            lastX = initialX;
-            lastY = initialY;
-        }
-
-        boolean isDragging = false;
-        float lastX;
-        float lastY;
-        float deltaX;
+        private int CLICK_ACTION_THRESHOLD = 200;
+        private float startX;
+        private float startY;
 
         @Override
-        public boolean onTouch(View view, MotionEvent motionEvent) {
-            int action = motionEvent.getAction();
-            if (action == MotionEvent.ACTION_DOWN && !isDragging) {
-                view.performClick();
-                isDragging = true;
-                deltaX = motionEvent.getX();
-                return true;
-            } else if (isDragging) {
-                if (action == MotionEvent.ACTION_MOVE) {
-                    view.setX(view.getX() + motionEvent.getX() - deltaX);
-                    view.setY(view.getY());
-                    return true;
-                } else if (action == MotionEvent.ACTION_UP) {
-                    isDragging = false;
-                    lastX = motionEvent.getX();
-                    lastY = motionEvent.getY();
-                    return true;
-                } else if (action == MotionEvent.ACTION_CANCEL) {
-                    view.setX(lastX);
-                    view.setY(lastY);
-                    isDragging = false;
-                    return true;
-                }
+        public boolean onTouch(View view, MotionEvent event) {
+            switch (event.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+                    startX = event.getX();
+                    startY = event.getY();
+                    break;
+                case MotionEvent.ACTION_UP:
+                    float endX = event.getX();
+                    float endY = event.getY();
+                    if (isAClick(startX, endX, startY, endY)) {
+                        handleClick();
+                    } else {
+                        handleDrag(startX, endX);
+                    }
+                    break;
             }
+            return true;
+        }
 
-            return false;
+        private void handleDrag(float startX, float endX) {
+            TabLayout.Tab tabToGo;
+            // if dragged past second tab
+            // added threshold for smoother dragging
+            if (startX + endX - CLICK_ACTION_THRESHOLD > (sliderContainerView.getX() + sliderContainerView.getWidth() / 3 * 2)) {
+                tabToGo = tabLayout.getTabAt(2);
+            }
+            // if dragged past first tab or back by one tab
+            // added threshold for smoother dragging
+            else if ((startX + endX - CLICK_ACTION_THRESHOLD > (sliderContainerView.getX() + sliderContainerView.getWidth() / 3))
+                    || (startX + endX < sliderView.getWidth() && startX + endX > 0)) {
+                tabToGo = tabLayout.getTabAt(1);
+            }
+            // all other cases = drag to first tab
+            else {
+                tabToGo = tabLayout.getTabAt(0);
+            }
+            if (tabToGo != null) {
+                tabToGo.select();
+            }
+        }
+
+        private void handleClick() {
+            int currentPos = tabLayout.getSelectedTabPosition();
+            TabLayout.Tab tabToGo = null;
+            if (currentPos == 2) {
+                tabToGo = tabLayout.getTabAt(0);
+            } else if (currentPos == 1) {
+                tabToGo = tabLayout.getTabAt(currentPos + 1);
+            } else if (currentPos == 0) {
+                tabToGo = tabLayout.getTabAt(currentPos + 1);
+            }
+            if (tabToGo != null) {
+                tabToGo.select();
+                sliderView.setText(tabToGo.getText());
+            }
+        }
+
+        private boolean isAClick(float startX, float endX, float startY, float endY) {
+            float differenceX = Math.abs(startX - endX);
+            float differenceY = Math.abs(startY - endY);
+            return !(differenceX > CLICK_ACTION_THRESHOLD || differenceY > CLICK_ACTION_THRESHOLD);
         }
     }
 }
