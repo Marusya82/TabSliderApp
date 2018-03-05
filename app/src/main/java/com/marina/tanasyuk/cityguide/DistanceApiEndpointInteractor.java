@@ -8,6 +8,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
+import timber.log.Timber;
 
 /**
  * Interactor for Google Maps Distance Matrix API.
@@ -21,8 +22,11 @@ public class DistanceApiEndpointInteractor {
 
     private final Context context;
 
-    public DistanceApiEndpointInteractor(MainPresenterImpl presenter, Context context) {
+    private OnDistanceResponseReceivedListener listener;
+
+    public DistanceApiEndpointInteractor(OnDistanceResponseReceivedListener listener, Context context) {
         this.context = context;
+        this.listener = listener;
         init();
     }
 
@@ -37,24 +41,30 @@ public class DistanceApiEndpointInteractor {
     }
 
     public void getDistance(String origins, String destinations) {
-        // TODO add API call
         String apiKey = context.getResources().getString(R.string.API_KEY);
+        // TODO Implement RxJava
         Call<DistanceResponse> call = apiService.getDistanceResponse(origins, destinations, apiKey);
         call.enqueue(new Callback<DistanceResponse>() {
             @Override
             public void onResponse(@NonNull Call<DistanceResponse> call, @NonNull Response<DistanceResponse> response) {
                 // TODO Handle response
-                int statusCode = response.code();
+                Timber.i("Distance response received");
                 DistanceResponse distanceResponse = response.body();
                 if (distanceResponse != null) {
                     distanceResponse.getDistance();
+                    listener.onDistanceResponse(distanceResponse);
                 }
             }
 
             @Override
             public void onFailure(@NonNull Call<DistanceResponse> call, @NonNull Throwable t) {
-                // TODO Handle errors
+                Timber.e("Distance API call failed", t.getMessage());
+                // TODO update UI to handle failed response
             }
         });
+    }
+
+    public interface OnDistanceResponseReceivedListener {
+        void onDistanceResponse(DistanceResponse distanceResponse);
     }
 }

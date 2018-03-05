@@ -83,8 +83,20 @@ public class MainActivity extends AppCompatActivity {
     private void setupViewPager() {
         viewPager.setOffscreenPageLimit(NUMBER_OF_TABS);
         tabViewPagerAdapter = new TabViewPagerAdapter(this);
+
+        TabViewImpl.TabViewOnRefreshListener tabViewOnRefreshListener = new TabViewImpl.TabViewOnRefreshListener() {
+            @Override
+            public void onRefresh(int position) {
+                fetchPlaces(position);
+            }
+        };
+
         for (int i = 0; i < NUMBER_OF_TABS; i++) {
-            tabViewPagerAdapter.addView(new TabViewImpl(context, new ArrayList<MyPlace>(), i));
+            tabViewPagerAdapter.addView(
+                    new TabViewImpl(context,
+                            new ArrayList<MyPlace>(),
+                            i,
+                            tabViewOnRefreshListener));
         }
         viewPager.setAdapter(tabViewPagerAdapter);
         tabLayout.setupWithViewPager(viewPager);

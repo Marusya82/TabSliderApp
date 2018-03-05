@@ -118,6 +118,8 @@ public class CustomTabLayout extends FrameLayout {
                     }
                     break;
                 case MotionEvent.ACTION_MOVE:
+                    startX = event.getX();
+                    startY = event.getY();
                     params.leftMargin = (int) event.getRawX() - (view.getWidth() / 2);
                     view.setLayoutParams(params);
                     break;
@@ -126,21 +128,13 @@ public class CustomTabLayout extends FrameLayout {
         }
 
         private void handleDrag(float startX, float endX) {
-            TabLayout.Tab tabToGo;
-            // added threshold for smoother dragging
-            // if dragged past second tab
-            if (startX + endX - CLICK_ACTION_THRESHOLD > (sliderContainerView.getX() + sliderContainerView.getWidth() / 3 * 2)) {
-                tabToGo = tabLayout.getTabAt(2);
-            }
-            // if dragged past first tab or back by one tab
-            // added threshold for smoother dragging
-            else if ((startX + endX - CLICK_ACTION_THRESHOLD > (sliderContainerView.getX() + sliderContainerView.getWidth() / 3))
-                    || (startX + endX < sliderView.getWidth() && startX + endX > 0)) {
-                tabToGo = tabLayout.getTabAt(1);
-            }
-            // all other cases = drag to first tab
-            else {
-                tabToGo = tabLayout.getTabAt(0);
+            TabLayout.Tab tabToGo = null;
+            int currentPos = tabLayout.getSelectedTabPosition();
+            float deltaX = endX - startX;
+            if (Math.abs(deltaX) > sliderContainerView.getWidth()/3/2 && deltaX > 0) {
+                tabToGo = tabLayout.getTabAt(currentPos + 1);
+            } else if (Math.abs(deltaX) > sliderContainerView.getWidth()/3/2 && deltaX < 0) {
+                tabToGo = tabLayout.getTabAt(currentPos - 1);
             }
             if (tabToGo != null) {
                 tabToGo.select();

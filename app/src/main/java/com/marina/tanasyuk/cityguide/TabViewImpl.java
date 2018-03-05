@@ -33,10 +33,13 @@ public class TabViewImpl implements TabView {
     private Unbinder unbinder;
     private final int position;
 
-    TabViewImpl(Context context, List<MyPlace> myPlaces, int position) {
+    private TabViewOnRefreshListener onRefreshListener;
+
+    TabViewImpl(Context context, List<MyPlace> myPlaces, int position, TabViewOnRefreshListener onRefreshListener) {
         this.myPlaces = myPlaces;
         this.context = context;
         this.position = position;
+        this.onRefreshListener = onRefreshListener;
     }
 
     @Override
@@ -51,9 +54,7 @@ public class TabViewImpl implements TabView {
         swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                if (context instanceof MainActivity) {
-                    ((MainActivity) context).fetchPlaces(position);
-                }
+                onRefreshListener.onRefresh(position);
             }
         });
         swipeContainer.setColorSchemeResources(R.color.colorPrimary);
@@ -66,5 +67,9 @@ public class TabViewImpl implements TabView {
     @Override
     public void onDestroyView() {
         unbinder.unbind();
+    }
+
+    public interface TabViewOnRefreshListener {
+        void onRefresh(int position);
     }
 }

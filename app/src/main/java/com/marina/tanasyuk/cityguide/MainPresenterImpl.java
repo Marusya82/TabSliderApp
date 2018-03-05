@@ -44,11 +44,23 @@ public class MainPresenterImpl implements MainPresenter {
         if (context instanceof MainActivity) {
             this.context = context;
             this.tabViewPagerAdapter = tabViewPagerAdapter;
-            mPlaceDetectionClient = Places.getPlaceDetectionClient(context, null);
-            distanceApiEndpointInteractor = new DistanceApiEndpointInteractor(this, this.context);
+            init();
         } else {
             throw new IllegalArgumentException("Has to be originated from Main Activity");
         }
+    }
+
+    private void init() {
+        mPlaceDetectionClient = Places.getPlaceDetectionClient(context, null);
+        DistanceApiEndpointInteractor.OnDistanceResponseReceivedListener
+                onDistanceResponseReceivedListener = new DistanceApiEndpointInteractor.OnDistanceResponseReceivedListener() {
+            @Override
+            public void onDistanceResponse(DistanceResponse distanceResponse) {
+                updateDistance(distanceResponse);
+            }
+        };
+        distanceApiEndpointInteractor = new DistanceApiEndpointInteractor(onDistanceResponseReceivedListener, context);
+
     }
 
     @Override
@@ -84,7 +96,7 @@ public class MainPresenterImpl implements MainPresenter {
                         int placeType = place.getPlaceTypes().get(0);
                         switch (placeType) {
                             // TODO: update first case to 9 (bars)
-                            case 9:
+                            case 30:
                                 bars.add(new MyPlace(place.getName().toString(),
                                         MyPlace.Type.BAR,
                                         (int) place.getRating(),
@@ -98,7 +110,7 @@ public class MainPresenterImpl implements MainPresenter {
                                         place.getId()));
                                 break;
                             // TODO: update second case to 79 (bistros)
-                            case 30:
+                            case 79:
                                 bistros.add(new MyPlace(place.getName().toString(),
                                         MyPlace.Type.BISTRO,
                                         (int) place.getRating(),
@@ -152,5 +164,9 @@ public class MainPresenterImpl implements MainPresenter {
                 view.setSwipeContainerStatusNotRefreshing();
             }
         }
+    }
+
+    private void updateDistance(DistanceResponse distanceResponse) {
+        // TODO update distance
     }
 }
