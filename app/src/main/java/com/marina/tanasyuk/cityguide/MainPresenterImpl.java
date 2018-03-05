@@ -26,23 +26,29 @@ import timber.log.Timber;
 import static com.marina.tanasyuk.cityguide.MainActivity.READ_LOCATION_PERMISSIONS_REQUEST;
 
 /**
- * Presenter created to offload fetching and view updating logic of Main Activity, imitating MVP.
+ * Presenter created to offload fetching and view updating logic off Main Activity, imitating MVP.
  */
 
-public class MainPresenterImpl implements MainView {
+public class MainPresenterImpl implements MainPresenter {
 
-    public static final int NUMBER_OF_TABS = 3;
+    static final int NUMBER_OF_TABS = 3;
     private static final String TAG = MainPresenterImpl.class.getSimpleName();
 
     private PlaceDetectionClient mPlaceDetectionClient;
     private TabViewPagerAdapter tabViewPagerAdapter;
+    private DistanceApiEndpointInteractor distanceApiEndpointInteractor;
 
     private final Context context;
 
     MainPresenterImpl(Context context, TabViewPagerAdapter tabViewPagerAdapter) {
-        this.context = context;
-        this.tabViewPagerAdapter = tabViewPagerAdapter;
-        mPlaceDetectionClient = Places.getPlaceDetectionClient(context, null);
+        if (context instanceof MainActivity) {
+            this.context = context;
+            this.tabViewPagerAdapter = tabViewPagerAdapter;
+            mPlaceDetectionClient = Places.getPlaceDetectionClient(context, null);
+            distanceApiEndpointInteractor = new DistanceApiEndpointInteractor(this, this.context);
+        } else {
+            throw new IllegalArgumentException("Has to be originated from Main Activity");
+        }
     }
 
     @Override
@@ -78,53 +84,29 @@ public class MainPresenterImpl implements MainView {
                         int placeType = place.getPlaceTypes().get(0);
                         switch (placeType) {
                             // TODO: update first case to 9 (bars)
-                            case 30:
+                            case 9:
                                 bars.add(new MyPlace(place.getName().toString(),
                                         MyPlace.Type.BAR,
-                                        (int) place.getRating()));
+                                        (int) place.getRating(),
+                                        place.getId()));
                                 break;
+                            // TODO: update second case to 15 (cafes)
                             case 15:
                                 cafes.add(new MyPlace(place.getName().toString(),
                                         MyPlace.Type.CAFE,
-                                        (int) place.getRating()));
+                                        (int) place.getRating(),
+                                        place.getId()));
                                 break;
-                            case 79:
+                            // TODO: update second case to 79 (bistros)
+                            case 30:
                                 bistros.add(new MyPlace(place.getName().toString(),
                                         MyPlace.Type.BISTRO,
-                                        (int) place.getRating()));
+                                        (int) place.getRating(),
+                                        place.getId()));
                                 break;
                         }
                     }
-                    if (position >= 0 && position <= 2) {
-                        TabViewImpl view = tabViewPagerAdapter.getItem(position);
-                        MyPlacesAdapter adapter = (MyPlacesAdapter) view.rvPlaces.getAdapter();
-                        adapter.clear();
-                        if (position == 0) {
-                            adapter.addAll(bars);
-                        } else if (position == 1) {
-                            adapter.addAll(bistros);
-                        } else if (position == 2) {
-                            adapter.addAll(cafes);
-                        }
-                        adapter.notifyDataSetChanged();
-                        view.setSwipeContainerStatusNotRefreshing();
-                    } else {
-                        // position equals NUMBER_OF_TABS, update all tabs
-                        for (int i = 0; i < NUMBER_OF_TABS; i++) {
-                            TabViewImpl view = tabViewPagerAdapter.getItem(i);
-                            MyPlacesAdapter adapter = (MyPlacesAdapter) view.rvPlaces.getAdapter();
-                            adapter.clear();
-                            if (i == 0) {
-                                adapter.addAll(bars);
-                            } else if (i == 1) {
-                                adapter.addAll(bistros);
-                            } else if (i == 2) {
-                                adapter.addAll(cafes);
-                            }
-                            adapter.notifyDataSetChanged();
-                            view.setSwipeContainerStatusNotRefreshing();
-                        }
-                    }
+                    updateUI(position, bars, bistros, cafes);
                     likelyPlaces.release();
                 } else {
                     Toast.makeText(context,
@@ -137,5 +119,38 @@ public class MainPresenterImpl implements MainView {
                 }
             }
         });
+    }
+
+    private void updateUI(int position, List<MyPlace> bars, List<MyPlace> bistros, List<MyPlace> cafes) {
+        if (position >= 0 && position <= 2) {
+            TabViewImpl view = tabViewPagerAdapter.getItem(position);
+            MyPlacesAdapter adapter = (MyPlacesAdapter) view.rvPlaces.getAdapter();
+            adapter.clear();
+            if (position == 0) {
+                adapter.addAll(bars);
+            } else if (position == 1) {
+                adapter.addAll(bistros);
+            } else if (position == 2) {
+                adapter.addAll(cafes);
+            }
+            adapter.notifyDataSetChanged();
+            view.setSwipeContainerStatusNotRefreshing();
+        } else {
+            // position equals NUMBER_OF_TABS, update all tabs
+            for (int i = 0; i < NUMBER_OF_TABS; i++) {
+                TabViewImpl view = tabViewPagerAdapter.getItem(i);
+                MyPlacesAdapter adapter = (MyPlacesAdapter) view.rvPlaces.getAdapter();
+                adapter.clear();
+                if (i == 0) {
+                    adapter.addAll(bars);
+                } else if (i == 1) {
+                    adapter.addAll(bistros);
+                } else if (i == 2) {
+                    adapter.addAll(cafes);
+                }
+                adapter.notifyDataSetChanged();
+                view.setSwipeContainerStatusNotRefreshing();
+            }
+        }
     }
 }

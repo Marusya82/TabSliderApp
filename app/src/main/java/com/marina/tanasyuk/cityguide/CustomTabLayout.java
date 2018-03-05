@@ -99,6 +99,7 @@ public class CustomTabLayout extends FrameLayout {
         private int CLICK_ACTION_THRESHOLD = 200;
         private float startX;
         private float startY;
+        private float deltaX;
 
         @Override
         public boolean onTouch(View view, MotionEvent event) {
@@ -110,6 +111,7 @@ public class CustomTabLayout extends FrameLayout {
                 case MotionEvent.ACTION_UP:
                     float endX = event.getX();
                     float endY = event.getY();
+                    deltaX = event.getX();
                     if (isAClick(startX, endX, startY, endY)) {
                         handleClick();
                     } else {
@@ -122,8 +124,8 @@ public class CustomTabLayout extends FrameLayout {
 
         private void handleDrag(float startX, float endX) {
             TabLayout.Tab tabToGo;
-            // if dragged past second tab
             // added threshold for smoother dragging
+            // if dragged past second tab
             if (startX + endX - CLICK_ACTION_THRESHOLD > (sliderContainerView.getX() + sliderContainerView.getWidth() / 3 * 2)) {
                 tabToGo = tabLayout.getTabAt(2);
             }

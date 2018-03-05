@@ -13,11 +13,13 @@ public class MyPlace {
     private final String name;
     private final Type type;
     private final int rating;
+    private final String placeID;
 
-    MyPlace(String name, Type type, int rating) {
+    MyPlace(String name, Type type, int rating, String placeId) {
         this.name = name;
         this.type = type;
         this.rating = rating;
+        this.placeID = placeId;
     }
 
     String getName() {
@@ -30,6 +32,10 @@ public class MyPlace {
 
     int getRating() {
         return rating;
+    }
+
+    public String getPlaceID() {
+        return placeID;
     }
 
     @Override

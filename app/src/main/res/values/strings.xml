@@ -6,4 +6,5 @@
     <string name="drawer_open">Open navigation drawer</string>
     <string name="drawer_close">Close navigation drawer</string>
     <string name="distance_placeholder">0.4 mi</string>
+    <string name="API_KEY">AIzaSyD3HaJtv3TK2NAnRlBDIZe4c1LTKImQZMg</string>
 </resources>
