@@ -99,10 +99,10 @@ public class CustomTabLayout extends FrameLayout {
         private int CLICK_ACTION_THRESHOLD = 200;
         private float startX;
         private float startY;
-        private float deltaX;
 
         @Override
         public boolean onTouch(View view, MotionEvent event) {
+            FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) view.getLayoutParams();
             switch (event.getAction()) {
                 case MotionEvent.ACTION_DOWN:
                     startX = event.getX();
@@ -111,12 +111,15 @@ public class CustomTabLayout extends FrameLayout {
                 case MotionEvent.ACTION_UP:
                     float endX = event.getX();
                     float endY = event.getY();
-                    deltaX = event.getX();
                     if (isAClick(startX, endX, startY, endY)) {
                         handleClick();
                     } else {
                         handleDrag(startX, endX);
                     }
+                    break;
+                case MotionEvent.ACTION_MOVE:
+                    params.leftMargin = (int) event.getRawX() - (view.getWidth() / 2);
+                    view.setLayoutParams(params);
                     break;
             }
             return true;
