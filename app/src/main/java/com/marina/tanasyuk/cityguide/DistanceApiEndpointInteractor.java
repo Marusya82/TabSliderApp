@@ -47,10 +47,10 @@ public class DistanceApiEndpointInteractor {
         call.enqueue(new Callback<DistanceResponse>() {
             @Override
             public void onResponse(@NonNull Call<DistanceResponse> call, @NonNull Response<DistanceResponse> response) {
-                // TODO Handle response
                 Timber.i("Distance response received");
                 DistanceResponse distanceResponse = response.body();
-                if (distanceResponse != null) {
+                if (distanceResponse != null && !distanceResponse.getElementList().isEmpty()) {
+                    // TODO Handle response, grab distance, update UI
                     distanceResponse.getDistance();
                     listener.onDistanceResponse(distanceResponse);
                 }

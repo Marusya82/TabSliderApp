@@ -95,21 +95,18 @@ public class MainPresenterImpl implements MainPresenter {
                         Place place = placeLikelihood.getPlace();
                         int placeType = place.getPlaceTypes().get(0);
                         switch (placeType) {
-                            // TODO: update first case to 9 (bars)
-                            case 30:
+                            case 9:
                                 bars.add(new MyPlace(place.getName().toString(),
                                         MyPlace.Type.BAR,
                                         (int) place.getRating(),
                                         place.getId()));
                                 break;
-                            // TODO: update second case to 15 (cafes)
                             case 15:
                                 cafes.add(new MyPlace(place.getName().toString(),
                                         MyPlace.Type.CAFE,
                                         (int) place.getRating(),
                                         place.getId()));
                                 break;
-                            // TODO: update second case to 79 (bistros)
                             case 79:
                                 bistros.add(new MyPlace(place.getName().toString(),
                                         MyPlace.Type.BISTRO,
@@ -118,6 +115,10 @@ public class MainPresenterImpl implements MainPresenter {
                                 break;
                         }
                     }
+                    // TODO call interactor and pass it Places ids of nearby places, map to the id and update UI
+                    String origins = "";
+                    String destinations = "";
+                    distanceApiEndpointInteractor.getDistance(origins, destinations);
                     updateUI(position, bars, bistros, cafes);
                     likelyPlaces.release();
                 } else {

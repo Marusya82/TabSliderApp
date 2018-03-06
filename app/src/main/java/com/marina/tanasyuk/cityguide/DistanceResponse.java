@@ -11,7 +11,11 @@ import java.util.List;
 public class DistanceResponse {
 
     @SerializedName("rows")
-    List<Element> elementList;
+    private List<Element> elementList;
+
+    public List<Element> getElementList() {
+        return elementList;
+    }
 
     String getDistance() {
         return elementList.get(0).getDistance().getDistanceText();

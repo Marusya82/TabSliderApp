@@ -10,7 +10,7 @@ import retrofit2.http.Query;
 
 public interface DistanceApiEndpointInterface {
 
-    @GET("json?units=imperial&origins={origin}&destinations={destination}&key={api_key")
+    @GET("json?units=imperial")
     Call<DistanceResponse> getDistanceResponse(@Query("origins") String origins,
                                        @Query("destinations") String destinations,
                                        @Query("key") String apiKey);
